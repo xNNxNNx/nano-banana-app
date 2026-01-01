@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano Banana Gen</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    <style>
+        body {
+            background-color: var(--tg-theme-bg-color, #212121);
+            color: var(--tg-theme-text-color, #ffffff);
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        #preview {
+            width: 100%;
+            max-width: 512px;
+            height: 300px;
+            background-color: var(--tg-theme-secondary-bg-color, #333);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid var(--tg-theme-hint-color, #555);
+        }
+        img { width: 100%; height: auto; display: none; }
+        textarea {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--tg-theme-hint-color, #555);
+            background: var(--tg-theme-secondary-bg-color, #444);
+            color: var(--tg-theme-text-color, #fff);
+            resize: none;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        button {
+            background-color: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #fff);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            max-width: 520px;
+            font-weight: bold;
+        }
+        button:disabled { opacity: 0.6; }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <h3>🍌 Nano Banana (Gemini)</h3>
+    
+    <div id="preview">
+        <span id="placeholder">Картинка появится здесь</span>
+        <div class="loader" id="loader"></div>
+        <img id="result_img" alt="Generated Image">
+    </div>
+
+    <textarea id="prompt" rows="3" placeholder="Опишите картинку (например: a cyberpunk cat)..."></textarea>
+    
+    <button id="btn" onclick="generate()">Сгенерировать</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // На весь экран
+
+        async function generate() {
+            const prompt = document.getElementById('prompt').value;
+            const btn = document.getElementById('btn');
+            const loader = document.getElementById('loader');
+            const placeholder = document.getElementById('placeholder');
+            const img = document.getElementById('result_img');
+
+            if (!prompt) return tg.showAlert("Введите описание!");
+
+            // UI: Загрузка
+            btn.disabled = true;
+            btn.innerText = "Генерирую...";
+            loader.style.display = "block";
+            placeholder.style.display = "none";
+            img.style.display = "none";
+
+            try {
+                // ВАЖНО: Используем testMode=true (Бесплатно)
+                // Модель: gemini-2.5-flash-image-preview
+                const imageElement = await puter.ai.txt2img(prompt, {
+                    model: 'gemini-2.5-flash-image-preview',
+                    test_mode: true 
+                });
+
+                // Puter возвращает img элемент. Берем его src.
+                img.src = imageElement.src;
+                img.style.display = "block";
+                loader.style.display = "none";
+                
+                // Можно отправить данные обратно боту, но проще просто показать
+                tg.HapticFeedback.notificationOccurred('success');
+
+            } catch (error) {
+                tg.showAlert("Ошибка: " + error.message);
+                placeholder.innerText = "Ошибка :(";
+                placeholder.style.display = "block";
+                loader.style.display = "none";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Сгенерировать";
+            }
+        }
+    </script>
+</body>
+</html>
