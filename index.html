@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nano Banana Gen</title>
+    <title>Nano Banana Pro Gen</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://js.puter.com/v2/"></script>
     <style>
@@ -70,7 +70,8 @@
 </head>
 <body>
 
-    <h3>🍌 Nano Banana (Gemini)</h3>
+    <!-- Обновил заголовок -->
+    <h3>🍌 Nano Banana Pro (Gemini 3)</h3>
     
     <div id="preview">
         <span id="placeholder">Картинка появится здесь</span>
@@ -78,7 +79,7 @@
         <img id="result_img" alt="Generated Image">
     </div>
 
-    <textarea id="prompt" rows="3" placeholder="Опишите картинку (например: a cyberpunk cat)..."></textarea>
+    <textarea id="prompt" rows="3" placeholder="Опишите картинку (например: vintage movie poster)..."></textarea>
     
     <button id="btn" onclick="generate()">Сгенерировать</button>
 
@@ -97,14 +98,13 @@
 
             // UI: Загрузка
             btn.disabled = true;
-            btn.innerText = "Генерирую...";
+            btn.innerText = "Генерирую (Pro)...";
             loader.style.display = "block";
             placeholder.style.display = "none";
             img.style.display = "none";
 
             try {
-                // ВАЖНО: Используем testMode=true (Бесплатно)
-                // Модель: gemini-2.5-flash-image-preview
+                // ВАЖНО: Используем модель gemini-3-pro-image-preview
                 const imageElement = await puter.ai.txt2img(prompt, {
                     model: 'gemini-3-pro-image-preview',
                     test_mode: true 
@@ -115,10 +115,10 @@
                 img.style.display = "block";
                 loader.style.display = "none";
                 
-                // Можно отправить данные обратно боту, но проще просто показать
                 tg.HapticFeedback.notificationOccurred('success');
 
             } catch (error) {
+                // Обработка ошибок (включая требование авторизации)
                 tg.showAlert("Ошибка: " + error.message);
                 placeholder.innerText = "Ошибка :(";
                 placeholder.style.display = "block";
